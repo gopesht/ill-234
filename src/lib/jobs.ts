@@ -7,6 +7,24 @@
  */
 import type { Job } from '../types/job';
 
+/** Department and location criteria used to narrow a role listing. */
+export interface JobFilters {
+    department: string;
+    location: string;
+}
+
+/** Return jobs matching every selected filter (does not mutate input). */
+export function filterJobs<T extends Pick<Job, 'department' | 'location'>>(
+    jobs: T[],
+    filters: JobFilters,
+): T[] {
+    return jobs.filter(
+        (job) =>
+            (filters.department === '' || job.department === filters.department) &&
+            (filters.location === '' || job.location === filters.location),
+    );
+}
+
 /** Return jobs sorted by posted date, newest first (does not mutate input). */
 export function sortByNewest(jobs: Job[]): Job[] {
     return [...jobs].sort(
