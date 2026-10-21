@@ -18,6 +18,45 @@ test.describe('Open roles listing', () => {
         await expect(page.getByTestId('role-card')).toHaveCount(expectedRoleCount);
     });
 
+    test('filters roles immediately by department and location and can be cleared', async ({
+        page,
+    }) => {
+        await page.goto('/');
+        const departmentFilter = page.getByTestId('department-filter');
+        const locationFilter = page.getByTestId('location-filter');
+        const visibleRoleCards = page.locator('[data-testid="role-card"]:visible');
+
+        await departmentFilter.selectOption('Finance');
+        await expect(visibleRoleCards).toHaveCount(2);
+
+        await locationFilter.selectOption('Helsinki, Finland');
+        await expect(visibleRoleCards).toHaveCount(1);
+        await expect(visibleRoleCards.getByRole('heading')).toHaveText(
+            'Financial Reconciliation Specialist',
+        );
+
+        await locationFilter.selectOption('');
+        await expect(visibleRoleCards).toHaveCount(2);
+
+        await departmentFilter.selectOption('');
+        await expect(visibleRoleCards).toHaveCount(expectedRoleCount);
+    });
+
+    test('shows and clears the no-matching-roles message', async ({ page }) => {
+        await page.goto('/');
+        const noResults = page.getByTestId('roles-empty-results');
+
+        await page.getByTestId('department-filter').selectOption('Technology');
+        await page.getByTestId('location-filter').selectOption('Helsinki, Finland');
+
+        await expect(page.locator('[data-testid="role-card"]:visible')).toHaveCount(0);
+        await expect(noResults).toBeVisible();
+
+        await page.getByTestId('department-filter').selectOption('');
+        await expect(page.getByTestId('role-card')).toHaveCount(expectedRoleCount);
+        await expect(noResults).toBeHidden();
+    });
+
     test('links through to a role detail page', async ({ page }) => {
         await page.goto('/');
         const firstCard = page.getByTestId('role-card').first();
