@@ -84,6 +84,7 @@ const locations = [...new Set(jobs.map((job) => job.location))].sort();
 <script>
   import { filterJobs } from '../lib/jobs';
 
+  /** Connect filter controls to the prerendered role cards. */
   const initializeRoleFilters = (): void => {
     const departmentFilter = document.querySelector<HTMLSelectElement>(
       '[data-testid="department-filter"]',
@@ -114,6 +115,7 @@ const locations = [...new Set(jobs.map((job) => job.location))].sort();
       return { element, department, location };
     });
 
+    /** Display matching roles and announce when the filters have no matches. */
     const updateVisibleRoles = (): void => {
       const matchingRoles = filterJobs(roles, {
         department: departmentFilter.value,
